@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MindHaven 🌿</title>
+  <!-- Google Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <meta name="description" content="MindHaven — gentle tools, short practices and friendly guides to calm the mind." />
+  <style>
+    :root{
+      --accent: #6a5acd; /* lavender */
+      --card-bg: rgba(255,255,255,0.8);
+      --muted: #666;
+      --soft-shadow: 0 6px 20px rgba(20,20,40,0.06);
+      --max-width: 900px;
+      --border-thickness: 6px; /* thinner border for subtlety */
+    }
+
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{
+      font-family: 'Poppins', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+      margin:0;
+      color:#222;
+      background: linear-gradient(135deg,#f7f5f9 0%, #e6e9f0 50%, #fce1e4 100%);
+      min-height:100vh;
+      padding:32px 20px;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      position:relative;
+      overflow-x:hidden;
+    }
+
+    /* ------------------------
+       Animated gradient border + pulsing glow
+       - thinner, more subtle (rgba)
+       - slower (20s)
+       - pulse via box-shadow animation on pseudo-element
+       ------------------------ */
+    body {
+      border: var(--border-thickness) solid transparent;
+      border-radius: 14px;
+      /* base subtle gradient for the border itself */
+      border-image: linear-gradient(90deg, rgba(106,90,205,0.7), rgba(255,105,180,0.55)) 1;
+    }
+
+    /* pseudo-element used for the soft pulsing glow so it doesn't interfere with content */
+    body::after{
+      content: "";
+      position: absolute;
+      inset: calc(-1 * var(--border-thickness));
+      border-radius: calc(14px + var(--border-thickness));
+      pointer-events: none;
+      z-index: 3; /* behind content but above decorative background */
+      box-shadow: 0 0 12px rgba(106,90,205,0.12);
+      transition: box-shadow 0.3s linear;
+      animation: borderPulse 20s ease-in-out infinite;
+    }
+
+    @keyframes borderPulse {
+      0% {
+        box-shadow: 0 0 8px rgba(106,90,205,0.06), 0 0 18px rgba(255,105,180,0.03);
+        transform: scale(1);
+      }
+      50% {
+        box-shadow: 0 0 20px rgba(106,90,205,0.12), 0 0 36px rgba(255,105,180,0.06);
+        transform: scale(1.002);
+      }
+      100% {
+        box-shadow: 0 0 8px rgba(106,90,205,0.06), 0 0 18px rgba(255,105,180,0.03);
+        transform: scale(1);
+      }
+    }
+
+    /* ========== EMOJI BACKGROUND ========== */
+    .emoji {
+      position: absolute;
+      pointer-events: none;
+      font-size: 40px;
+      width: 56px;
+      height: 56px;
+      line-height: 56px;
+      text-align: center;
+      transform-origin: center;
+      will-change: transform, opacity;
+      opacity: 0.28;              /* faded look */
+      filter: drop-shadow(0 6px 14px rgba(0,0,0,0.06));
+      z-index: 0;
+      user-select: none;
+      animation-play-state: running;
+    }
+    .emoji.xs { font-size: 20px; width:28px; height:28px; line-height:28px; opacity:0.22 }
+    .emoji.sm { font-size: 30px; width:36px; height:36px; line-height:36px; opacity:0.26 }
+    .emoji.md { font-size: 40px; width:48px; height:48px; line-height:48px; opacity:0.30 }
+    .emoji.lg { font-size: 56px; width:64px; height:64px; line-height:64px; opacity:0.34 }
+
+    /* vertical fall + rotation + fade-in */
+    @keyframes fall {
+      0%   { transform: translateY(-20vh) translateX(0) rotate(0deg); opacity: 0 }
+      8%   { opacity: 0.28 }
+      40%  { transform: translateY(30vh) translateX(8px) rotate(90deg) }
+      70%  { transform: translateY(70vh) translateX(-12px) rotate(200deg) }
+      100% { transform: translateY(120vh) translateX(0) rotate(360deg); opacity: 0.28 }
+    }
+
+    /* gentle horizontal sway variants to layer motion */
+    @keyframes sway-left {
+      0% { transform: translateX(0) }
+      50% { transform: translateX(-18px) }
+      100% { transform: translateX(0) }
+    }
+    @keyframes sway-right {
+      0% { transform: translateX(0) }
+      50% { transform: translateX(18px) }
+      100% { transform: translateX(0) }
+    }
+
+    /* Slight scale/float to avoid perfectly rigid movement on some emojis */
+    @keyframes float-scale {
+      0% { transform: scale(1) }
+      50% { transform: scale(1.05) }
+      100% { transform: scale(1) }
+    }
+
+    /* clouds (kept subtle behind emojis) */
+    .cloud{
+      position:absolute; top:6vh; left:-20vw; width:28vw; height:12vh; border-radius:100px;
+      background:rgba(255,255,255,0.75); filter:blur(8px); opacity:0.55;
+      box-shadow:0 30px 60px rgba(110,110,160,0.06); animation:floatClouds 100s linear infinite; pointer-events:none; z-index:0;
+    }
+    .cloud.small{ width:18vw; height:8vh; top:2vh; left:-30vw; opacity:0.42 }
+    .cloud.right{ top:14vh; left:-40vw; width:34vw; height:14vh; opacity:0.5; animation-duration:120s; }
+
+    @keyframes floatClouds{ from{ transform: translateX(0) } to{ transform: translateX(160vw) } }
+
+    /* Keep main content above emoji layer */
+    header, nav, main, footer, section { position: relative; z-index: 5; }
+
+    header{max-width:var(--max-width);margin:0 auto 28px; text-align:center}
+    header h1{color:var(--accent);font-size:2.3rem;margin:0 0 6px}
+    header p{margin:0;color:var(--muted);font-size:1.05rem}
+
+    /* NAV */
+    nav{
+      position:sticky;top:12px;z-index:40;
+      max-width:var(--max-width);margin:18px auto;padding:10px 14px;border-radius:12px;
+      display:flex;gap:10px;flex-wrap:wrap;justify-content:center;align-items:center;
+      background: rgba(255,255,255,0.55);backdrop-filter: blur(6px);box-shadow:var(--soft-shadow);
+    }
+
+    nav a{color:var(--accent);text-decoration:none;padding:8px 12px;border-radius:8px;font-weight:600}
+    nav a:hover, nav a.active{background:rgba(106,90,205,0.10)}
+
+    /* layout */
+    main{max-width:var(--max-width);margin:26px auto;display:grid;gap:20px;align-items:start}
+
+    section.card{
+      background:var(--card-bg);padding:22px;border-radius:14px;box-shadow:var(--soft-shadow);text-align:left;
+      opacity:0;transform:translateY(18px);
+      animation:fadeInUp 0.65s ease forwards;
+    }
+
+    @keyframes fadeInUp{
+      from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}
+    }
+
+    /* stagger delays for visual polish */
+    section.card:nth-of-type(1){animation-delay:0.12s}
+    section.card:nth-of-type(2){animation-delay:0.18s}
+    section.card:nth-of-type(3){animation-delay:0.24s}
+    section.card:nth-of-type(4){animation-delay:0.30s}
+    section.card:nth-of-type(5){animation-delay:0.36s}
+    section.card:nth-of-type(6){animation-delay:0.42s}
+    section.card:nth-of-type(7){animation-delay:0.48s}
+
+    section.card h2{color:var(--accent);margin:0 0 8px;font-size:1.15rem}
+    section.card p{margin:0 0 12px;color:#444;line-height:1.55}
+
+    /* Use details/summary for accessible expand/collapse */
+    details{background:transparent;border-radius:8px}
+    summary{list-style:none;cursor:pointer;outline:none;padding:10px;border-radius:8px;display:flex;justify-content:space-between;align-items:center}
+    summary::-webkit-details-marker{display:none}
+    .chev{transition:transform .25s ease}
+    details[open] .chev{transform:rotate(180deg)}
+
+    .actions{display:flex;gap:10px;flex-wrap:wrap}
+    .btn{border:none;padding:8px 12px;border-radius:8px;background:var(--accent);color:white;font-weight:600;cursor:pointer}
+    .btn.ghost{background:transparent;color:var(--accent);border:1px solid rgba(106,90,205,0.12)}
+
+    /* breathing visual */
+    .breath-circle{width:120px;height:120px;border-radius:50%;margin:12px auto;display:block;box-shadow:0 8px 30px rgba(106,90,205,0.08);background:linear-gradient(180deg, rgba(106,90,205,0.12), rgba(106,90,205,0.05));transition:transform 3s ease}
+    .breathing{transform:scale(1.35)}
+
+    footer{max-width:var(--max-width);margin:28px auto 0;padding:18px;border-radius:12px;background:rgba(255,255,255,0.6);position:relative;overflow:visible}
+    footer p{margin:6px 0;color:var(--muted);text-align:center}
+
+    /* gradient accent behind footer but keep text above */
+    footer::before{content:"";position:absolute;left:0;right:0;bottom:100%;height:120px;background:linear-gradient(to top, rgba(255,182,193,0.35), transparent);border-radius:12px;pointer-events:none;z-index:-1}
+
+    /* emoji-paused state (when user toggles) */
+    body.no-emojis .emoji {
+      animation-play-state: paused !important;
+      opacity: 0.06 !important;
+      transform: translateY(0) !important;
+    }
+
+    /* controls for emoji toggle */
+    .emoji-toggle {
+      position: fixed;
+      right: 18px;
+      bottom: 18px;
+      z-index: 120;
+      background: var(--accent);
+      color: white;
+      border: none;
+      padding: 10px 14px;
+      border-radius: 999px;
+      cursor: pointer;
+      box-shadow: 0 8px 20px rgba(106,90,205,0.18);
+      font-weight: 600;
+    }
+
+    @media (min-width:880px){
+      main{grid-template-columns:repeat(2,1fr)}
+      section.card{min-height:120px}
+    }
+
+    @media (max-width:420px){
+      header h1{font-size:1.6rem}
+      .breath-circle{width:96px;height:96px}
+    }
+
+  </style>
+</head>
+
+<body>
+  <!-- subtle clouds for depth -->
+  <div class="cloud" aria-hidden="true"></div>
+  <div class="cloud small" aria-hidden="true"></div>
+  <div class="cloud right" aria-hidden="true"></div>
+
+  <!-- Falling emojis (faded) - varied sizes, delays & durations -->
+  <!-- angry 😡, happy 😄, sad 😢, crying 😭, laughing 😂, loving 😍, anxious 😰 -->
+  <div class="emoji sm" style="left:4%; top:-12vh; animation: fall 16s linear infinite; animation-delay:0s;">😡</div>
+  <div class="emoji md" style="left:12%; top:-8vh; animation: fall 20s linear infinite; animation-delay:2s;">😄</div>
+  <div class="emoji lg" style="left:20%; top:-15vh; animation: fall 18s linear infinite; animation-delay:4s;">😢</div>
+  <div class="emoji sm" style="left:28%; top:-10vh; animation: fall 22s linear infinite; animation-delay:1.5s;">😭</div>
+  <div class="emoji xs" style="left:34%; top:-12vh; animation: fall 15s linear infinite; animation-delay:3.2s;">😂</div>
+  <div class="emoji md" style="left:42%; top:-18vh; animation: fall 24s linear infinite; animation-delay:5s;">😍</div>
+  <div class="emoji sm" style="left:50%; top:-8vh; animation: fall 17s linear infinite; animation-delay:0.7s;">😰</div>
+  <div class="emoji lg" style="left:58%; top:-14vh; animation: fall 19s linear infinite; animation-delay:2.6s;">😄</div>
+  <div class="emoji md" style="left:66%; top:-11vh; animation: fall 21s linear infinite; animation-delay:4.7s;">😂</div>
+  <div class="emoji sm" style="left:74%; top:-9vh; animation: fall 18s linear infinite; animation-delay:1.1s;">😡</div>
+  <div class="emoji xs" style="left:82%; top:-13vh; animation: fall 16s linear infinite; animation-delay:3.8s;">😢</div>
+  <div class="emoji md" style="left:90%; top:-7vh; animation: fall 23s linear infinite; animation-delay:6s;">😍</div>
+
+  <header>
+    <h1>Welcome to MindHaven 🌸</h1>
+    <p>A safe space to explore thoughts, feelings, and find gentle steps forward.</p>
+  </header>
+
+  <nav id="top-nav" aria-label="Primary">
+    <a href="#overthinking">Overthinking</a>
+    <a href="#self-doubt">Self-Doubt</a>
+    <a href="#comparisons">Comparisons</a>
+    <a href="#negative-thinking">Negative Thinking</a>
+    <a href="#spiralling">Spiralling</a>
+    <a href="#sulking">Sulking</a>
+    <a href="#mindfulness">Mindfulness</a>
+  </nav>
+
+  <main>
+    <section id="overthinking" class="card">
+      <h2>💭 Overthinking</h2>
+      <p>Short exercise: try the 5-4-3-2-1 grounding. Name 5 things you can see, 4 you can touch, 3 you can hear, 2 you can smell and 1 you can taste (or imagine). Repeat when your mind races.</p>
+      <details>
+        <summary>
+          <span>Quick tips</span>
+          <span class="chev">▾</span>
+        </summary>
+        <div style="padding:6px 4px 0">
+          <ul>
+            <li>Set a "worry slot": 15 minutes daily to park anxious thoughts.</li>
+            <li>Write the thought down and ask: "Is this useful right now?"</li>
+            <li>Use a short timer — 3 deep breaths to interrupt the loop.</li>
+          </ul>
+        </div>
+      </details>
+    </section>
+
+    <section id="self-doubt" class="card">
+      <h2>🤔 Self-Doubt</h2>
+      <p>Make a small evidence list — 3 things you did well in the last month. Tangible evidence replaces vague self-criticism.</p>
+      <div class="actions" style="margin-top:8px">
+        <button class="btn" data-action="journal">Open Mini-Journal</button>
+        <button class="btn ghost" data-action="examples">See Examples</button>
+      </div>
+    </section>
+
+    <section id="comparisons" class="card">
+      <h2>🔍 Comparisons</h2>
+      <p>Comparison sneaks in when values are unclear. Re-define your "success" in one sentence — what matters to you, not to the feed.</p>
+      <details>
+        <summary>
+          <span>Exercises</span>
+          <span class="chev">▾</span>
+        </summary>
+        <div style="padding:6px 4px 0">
+          <ol>
+            <li>List 3 wins that are independent of others.</li>
+            <li>Unfollow 2 accounts that trigger comparison for a week.</li>
+          </ol>
+        </div>
+      </details>
+    </section>
+
+    <section id="negative-thinking" class="card">
+      <h2>🌧️ Negative Thinking</h2>
+      <p>Try the thought-challenge: spot the thought, find evidence for/against it, and create a balanced alternative.</p>
+    </section>
+
+    <section id="spiralling" class="card">
+      <h2>🌀 Spiralling</h2>
+      <p>Interruptors work best: cold water on face, a 60-second walk, or a 3-breath box breathing practice (4-4-4-4).</p>
+    </section>
+
+    <section id="sulking" class="card">
+      <h2>😞 Sulking</h2>
+      <p>Allow the feeling to be small and finite. Say: "I notice I'm sulking right now" — naming reduces intensity. Then choose 1 tiny action forward.</p>
+    </section>
+
+    <section id="mindfulness" class="card">
+      <h2>🧘 Mindfulness</h2>
+      <p>Let's try a short breathing tool — press Start and follow the inhale/exhale guidance.</p>
+      <div style="text-align:center;margin-top:10px">
+        <div id="breath" class="breath-circle" aria-hidden="true"></div>
+        <div style="margin-top:10px">
+          <button id="startBreath" class="btn">Start 1-min Breath</button>
+          <button id="stopBreath" class="btn ghost">Stop</button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer>
+    <p>🌿 Made with calm vibes and a sprinkle of code ✨</p>
+    <p>Remember: even baby steps count 💛</p>
+  </footer>
+
+  <!-- emoji toggle control -->
+  <button id="emojiToggle" class="emoji-toggle" aria-pressed="false" title="Toggle background emojis">Pause Emojis</button>
+
+  <script>
+    // Highlight active nav link on scroll
+    const nav = document.getElementById('top-nav')
+    const links = Array.from(nav.querySelectorAll('a'))
+    const sections = links.map(a => document.querySelector(a.getAttribute('href')))
+
+    function onScroll(){
+      const fromTop = window.scrollY + 80
+      let currentIndex = 0
+      sections.forEach((s,i)=>{
+        if(s && s.offsetTop <= fromTop) currentIndex = i
+      })
+      links.forEach(l=>l.classList.remove('active'))
+      if(links[currentIndex]) links[currentIndex].classList.add('active')
+    }
+    window.addEventListener('scroll', onScroll, {passive:true});
+    onScroll()
+
+    // Simple mini-journal modal-ish behaviour (inline prompt)
+    document.querySelectorAll('[data-action]').forEach(btn=>{
+      btn.addEventListener('click', e=>{
+        const action = btn.getAttribute('data-action')
+        if(action === 'journal'){
+          const val = prompt('Write one short sentence: one thing you did well this week')
+          if(val) alert('Nice — saved to your local session (temporary): "'+val+'"')
+        } else if(action === 'examples'){
+          alert('Examples:\n• Finished a challenging task\n• Reached out to a friend\n• Took time to rest')
+        }
+      })
+    })
+
+    // Breathing animation control
+    const breathEl = document.getElementById('breath')
+    let breathingTimer = null
+
+    function startBreathing(){
+      if(breathingTimer) return
+      breathEl.classList.add('breathing')
+      // 3s expand, 3s contract rhythm via CSS transition
+      breathingTimer = setInterval(()=>{
+        breathEl.classList.toggle('breathing')
+      }, 3000)
+    }
+    function stopBreathing(){
+      clearInterval(breathingTimer);breathingTimer=null;breathEl.classList.remove('breathing')
+    }
+    document.getElementById('startBreath').addEventListener('click', startBreathing)
+    document.getElementById('stopBreath').addEventListener('click', stopBreathing)
+
+    // keyboard accessibility: Enter toggles details when focused
+    document.querySelectorAll('summary').forEach(s=>{
+      s.addEventListener('keydown', e=>{ if(e.key === 'Enter' || e.key === ' ') { e.preventDefault(); s.parentElement.open = !s.parentElement.open } })
+    })
+
+    // small improvement: preserve last journal entries in sessionStorage
+    (function(){
+      if(!window.sessionStorage) return
+      const key='mindhaven.journal'
+      const stored = sessionStorage.getItem(key)
+      if(stored){console.debug('restored journal',stored)}
+      window.addEventListener('beforeunload', ()=>{
+        sessionStorage.setItem(key, 'sample')
+      })
+    })()
+
+    // Add subtle horizontal sway & small scale float to emojis for natural motion
+    document.addEventListener('DOMContentLoaded', ()=>{
+      document.querySelectorAll('.emoji').forEach((el, i) => {
+        const sway = (i % 2 === 0) ? 'sway-left' : 'sway-right';
+        const swayDur = 6 + Math.floor(Math.random() * 6); // 6-11s
+        const floatDur = 4 + Math.floor(Math.random() * 4); // 4-7s
+        // Keep original fall animation, append sway & float-scale
+        const base = el.style.animation || '';
+        el.style.animation = base + `, ${sway} ${swayDur}s ease-in-out ${i%3}s infinite, float-scale ${floatDur}s ease-in-out ${i%2}s infinite`;
+        // Slight random extra delay so emojis don't sync exactly
+        const extraDelay = Math.random() * 3;
+        el.style.animationDelay = (parseFloat(el.style.animationDelay) || 0) + extraDelay + 's';
+      });
+
+      // restore emoji toggle preference from localStorage
+      const stored = localStorage.getItem('mindhaven.emojiDisabled')
+      if(stored === '1') {
+        document.body.classList.add('no-emojis')
+        emojiToggle.textContent = 'Resume Emojis'
+        emojiToggle.setAttribute('aria-pressed','true')
+      }
+    });
+
+    // Emoji toggle button behavior (pause/resume)
+    const emojiToggle = document.getElementById('emojiToggle')
+    emojiToggle.addEventListener('click', () => {
+      const disabled = document.body.classList.toggle('no-emojis')
+      if(disabled) {
+        emojiToggle.textContent = 'Resume Emojis'
+        emojiToggle.setAttribute('aria-pressed','true')
+        localStorage.setItem('mindhaven.emojiDisabled','1')
+      } else {
+        emojiToggle.textContent = 'Pause Emojis'
+        emojiToggle.setAttribute('aria-pressed','false')
+        localStorage.setItem('mindhaven.emojiDisabled','0')
+      }
+    })
+
+  </script>
+</body>
+
+</html>
